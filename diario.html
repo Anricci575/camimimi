@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diario del Jardín Interior</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        verdigris: '#43BCCD',
+                        pewter: '#84A59D',
+                        rose: '#F28482',
+                        linen: '#F5EBE0',
+                        pale: '#F8EDEB',
+                        antique: '#E8D8C4',
+                        dusk: '#5E503F'
+                    },
+                    fontFamily: {
+                        handwritten: ['"Dancing Script"', 'cursive'],
+                        poetic: ['"Playfair Display"', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
+        .paper-texture {
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+        textarea {
+            resize: none;
+        }
+        textarea:focus, input:focus {
+            outline: none;
+        }
+        .page-shadow {
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.15);
+        }
+        .floating-leaves {
+            animation: float 8s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .delayed-animation {
+            animation-delay: 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px);}
+            to   { opacity: 1; transform: translateY(0);}
+        }
+        .modal-bg {
+            background: rgba(0,0,0,0.4);
+        }
+        .modal-shadow {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-pale to-antique min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-6xl font-handwritten text-dusk mb-4">Diario del Jardín Interior</h1>
+            <p class="text-lg font-poetic text-pewter italic">"Como la hierba entre las piedras, encuentro mi camino hacia la luz"</p>
+        </header>
+        
+        <!-- Main Content -->
+        <main>
+            <div class="paper-texture bg-white rounded-lg page-shadow overflow-hidden transition-all duration-500">
+                <!-- Date Picker -->
+                <div class="bg-verdigris/20 p-4 border-b border-verdigris/30 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar-day text-pewter mr-2 text-xl"></i>
+                        <input type="date" id="entry-date" class="bg-transparent border-none font-poetic text-dusk rounded px-2 focus:outline-none">
+                    </div>
+                    <button id="save-entry" class="bg-rose/80 hover:bg-rose text-white font-poetic px-4 py-1 rounded-full transition-all flex items-center">
+                        <i class="fas fa-seedling mr-2"></i> Guardar
+                    </button>
+                </div>
+                <style>
+                    .fab-btn {
+                        position: fixed;
+                        bottom: 30px;
+                        left: 30px;
+                        width: 60px;
+                        height: 60px;
+                        background-color: #e74c3c;
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 24px;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                        transition: all 0.3s;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .fab-btn:hover {
+                        background-color: #c0392b;
+                        transform: scale(1.1);
+                    }
+                </style>
+                
+                <button class="fab-btn" onclick="window.history.back()">←</button>
+                
+                <!-- Mood Selector -->
+                <div class="p-4 border-b border-verdigris/30">
+                    <h3 class="font-poetic text-pewter mb-2">¿Cómo te sientes hoy?</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <!-- Mood Options -->
+                        <div class="mood-option flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-verdigris/10 border-2 border-verdigris/30 flex items-center justify-center cursor-pointer hover:bg-verdigris/20 transition" data-mood="Feliz">
+                                <i class="fas fa-smile-beam text-verdigris text-xl"></i>
+                            </div>
+                            <span class="text-xs text-pewter mt-1">Feliz</span>
+                        </div>
+                        <div class="mood-option flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-100/10 border-2 border-blue-100/30 flex items-center justify-center cursor-pointer hover:bg-blue-100/20 transition" data-mood="Tranquilo">
+                                <i class="fas fa-wind text-blue-300 text-xl"></i>
+                            </div>
+                            <span class="text-xs text-pewter mt-1">Tranquilo</span>
+                        </div>
+                        <div class="mood-option flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-rose/10 border-2 border-rose/30 flex items-center justify-center cursor-pointer hover:bg-rose/20 transition" data-mood="Emocionado">
+                                <i class="fas fa-fire text-rose text-xl"></i>
+                            </div>
+                            <span class="text-xs text-pewter mt-1">Emocionado</span>
+                        </div>
+                        <div class="mood-option flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-amber-100/10 border-2 border-amber-100/30 flex items-center justify-center cursor-pointer hover:bg-amber-100/20 transition" data-mood="Ansioso">
+                                <i class="fas fa-cloud-rain text-amber-300 text-xl"></i>
+                            </div>
+                            <span class="text-xs text-pewter mt-1">Ansioso</span>
+                        </div>
+                        <div class="mood-option flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-gray-200/10 border-2 border-gray-200/30 flex items-center justify-center cursor-pointer hover:bg-gray-200/20 transition" data-mood="Triste">
+                                <i class="fas fa-cloud text-gray-400 text-xl"></i>
+                            </div>
+                            <span class="text-xs text-pewter mt-1">Triste</span>
+                        </div>
+                        <div class="mood-option flex flex-col items-center">
+                            <div class="w-12 h-12 rounded-full bg-purple-100/10 border-2 border-purple-100/30 flex items-center justify-center cursor-pointer hover:bg-purple-100/20 transition" data-mood="Cansado">
+                                <i class="fas fa-moon text-purple-300 text-xl"></i>
+                            </div>
+                            <span class="text-xs text-pewter mt-1">Cansado</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Entry Content -->
+                <div class="p-6">
+                    <div class="mb-4">
+                        <input type="text" id="entry-title" placeholder="Título de tu reflexión..." class="w-full bg-transparent border-b border-linen font-poetic text-2xl text-dusk placeholder-pewter/50 focus:border-verdigris focus:outline-none pb-1" maxlength="70">
+                    </div>
+                    <div class="relative">
+                        <textarea id="entry-content" rows="10" class="w-full bg-transparent font-poetic text-pewter placeholder-pewter/50 focus:outline-none leading-relaxed" placeholder="Escribe aquí tus pensamientos, como semillas que buscan tierra fértil..." maxlength="1000"></textarea>
+                        <!-- Decorative elements -->
+                        <div class="absolute -left-10 top-0 text-verdigris/20 hidden md:block">
+                            <i class="fas fa-leaf text-4xl floating-leaves"></i>
+                            <i class="fas fa-seedling text-4xl floating-leaves delayed-animation mt-8"></i>
+                        </div>
+                        <div class="absolute -right-10 bottom-0 text-verdigris/20 hidden md:block">
+                            <i class="fas fa-feather-alt text-4xl floating-leaves delayed-animation"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Word Counter -->
+                <div class="bg-linen p-3 flex justify-between items-center text-pewter text-sm">
+                    <div>
+                        <i class="fas fa-feather-alt mr-1"></i>
+                        <span id="word-count">0</span> palabras
+                    </div>
+                    <div>
+                        <span id="char-count">0</span> caracteres
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Saved Entries Section -->
+            <div class="mt-12">
+                <h3 class="font-poetic text-pewter text-2xl mb-4 flex items-center">
+                    <i class="fas fa-book-open mr-2"></i> Mis reflexiones pasadas
+                </h3>
+                <div id="saved-entries" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Modal -->
+    <div id="modal-bg" class="fixed inset-0 hidden items-center justify-center z-50 modal-bg">
+        <div id="modal" class="bg-white rounded-lg paper-texture modal-shadow max-w-lg w-full p-8 relative animate-fadeIn">
+            <button id="close-modal" class="absolute top-3 right-3 text-pewter hover:text-rose text-xl"><i class="fas fa-times"></i></button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+    <script>
+        // Utilidades de almacenamiento en localStorage
+        const STORAGE_KEY = "jardin_diario_entries_v1";
+        function guardarEntrada(entry, editId = null) {
+            let entries = obtenerEntradas();
+            if (editId) {
+                entries = entries.map(e => e.id === editId ? entry : e);
+            } else {
+                entries.unshift(entry);
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        }
+        function obtenerEntradas() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch {
+                return [];
+            }
+        }
+        function eliminarEntrada(id) {
+            let entries = obtenerEntradas();
+            entries = entries.filter(e => e.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        }
+        function renderizarEntradas() {
+            const savedEntries = document.getElementById('saved-entries');
+            savedEntries.innerHTML = '';
+            const entries = obtenerEntradas();
+            if (entries.length === 0) {
+                savedEntries.innerHTML = `<div class="bg-linen/50 p-6 rounded-lg text-center text-pewter/60 italic">No has escrito ninguna reflexión aún. ¡Anímate a plantar la primera semilla!</div>`;
+                return;
+            }
+            entries.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.className = 'bg-linen/50 p-6 rounded-lg cursor-pointer hover:bg-linen transition flex flex-col relative group';
+                entryElement.style.animation = 'fadeIn 0.5s ease-out';
+                // Botones editar y eliminar
+                entryElement.innerHTML = `
+                    <div class="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                        <button class="edit-entry bg-verdigris/10 hover:bg-verdigris text-verdigris hover:text-white rounded-full px-2 py-1" title="Editar" data-id="${entry.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-entry bg-rose/10 hover:bg-rose text-rose hover:text-white rounded-full px-2 py-1" title="Eliminar" data-id="${entry.id}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    <div class="text-pewter/70 text-sm mb-2 flex justify-between items-center">
+                        <span>${entry.date}</span>
+                        ${entry.mood ? `<span class="bg-rose/10 text-rose px-2 py-1 rounded-full text-xs">${entry.mood}</span>` : ''}
+                    </div>
+                    <h4 class="font-poetic text-dusk text-xl mb-2">${entry.title}</h4>
+                    <p class="text-pewter line-clamp-3">${entry.content.length > 150 ? entry.content.substring(0, 150) + '...' : entry.content}</p>
+                `;
+                // Modal al hacer clic en la tarjeta (excluye los botones)
+                entryElement.addEventListener('click', function(e) {
+                    if (!e.target.closest('.edit-entry') && !e.target.closest('.delete-entry')) {
+                        mostrarModal(entry);
+                    }
+                });
+                // Editar
+                entryElement.querySelector('.edit-entry').addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    cargarParaEditar(entry);
+                });
+                // Eliminar
+                entryElement.querySelector('.delete-entry').addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    if (confirm('¿Seguro que deseas eliminar esta reflexión? Esta acción no se puede deshacer.')) {
+                        eliminarEntrada(entry.id);
+                        renderizarEntradas();
+                    }
+                });
+                savedEntries.appendChild(entryElement);
+            });
+        }
+        // Modal
+        function mostrarModal(entry) {
+            const modalBg = document.getElementById('modal-bg');
+            const modalContent = document.getElementById('modal-content');
+            modalContent.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-pewter/70 text-sm">${entry.date}</span>
+                    ${entry.mood ? `<span class="bg-rose/10 text-rose px-2 py-1 rounded-full text-xs font-poetic">${entry.mood}</span>` : ''}
+                </div>
+                <h4 class="font-poetic text-dusk text-2xl mb-4">${entry.title}</h4>
+                <div class="text-pewter font-poetic whitespace-pre-line leading-relaxed mb-4">${entry.content}</div>
+            `;
+            modalBg.classList.remove('hidden');
+            modalBg.classList.add('flex');
+        }
+        document.getElementById('close-modal').onclick = function() {
+            document.getElementById('modal-bg').classList.add('hidden');
+            document.getElementById('modal-bg').classList.remove('flex');
+        };
+        document.getElementById('modal-bg').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.add('hidden');
+        });
+
+        // Editar
+        let editandoId = null;
+        function cargarParaEditar(entry) {
+            document.getElementById('entry-title').value = entry.title;
+            document.getElementById('entry-content').value = entry.content;
+            document.getElementById('entry-date').value = revertirFecha(entry.date);
+            // Seleccionar mood
+            const moodOptions = document.querySelectorAll('.mood-option div');
+            moodOptions.forEach(opt => {
+                opt.classList.remove('bg-verdigris/30', 'border-verdigris', 'ring-2', 'ring-verdigris');
+                if (opt.getAttribute('data-mood') === entry.mood) {
+                    opt.classList.add('bg-verdigris/30', 'border-verdigris', 'ring-2', 'ring-verdigris');
+                }
+            });
+            selectedMood = entry.mood || null;
+            editandoId = entry.id;
+            // Actualizar contador
+            const textarea = document.getElementById('entry-content');
+            const wordCount = document.getElementById('word-count');
+            const charCount = document.getElementById('char-count');
+            const text = textarea.value.trim();
+            wordCount.textContent = text === '' ? 0 : text.split(/\s+/).length;
+            charCount.textContent = textarea.value.length;
+            // Scroll arriba para edición
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        function revertirFecha(dateStr) {
+            // Convierte "12 de octubre de 2023" a "2023-10-12"
+            try {
+                const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+                const partes = dateStr.toLowerCase().replace(/ de /g,'|').split('|');
+                const dia = partes[0].padStart(2,'0');
+                const mes = (meses.indexOf(partes[1]) + 1).toString().padStart(2,'0');
+                const anio = partes[2];
+                return `${anio}-${mes}-${dia}`;
+            } catch {
+                return "";
+            }
+        }
+
+        // --------- UI principal ----------
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('entry-date').value = formattedDate;
+            // Mood selection
+            const moodOptions = document.querySelectorAll('.mood-option div');
+            window.selectedMood = null;
+            moodOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    moodOptions.forEach(opt => {
+                        opt.classList.remove('bg-verdigris/30', 'border-verdigris', 'ring-2', 'ring-verdigris');
+                    });
+                    this.classList.add('bg-verdigris/30', 'border-verdigris', 'ring-2', 'ring-verdigris');
+                    window.selectedMood = this.parentElement.querySelector('span').textContent;
+                });
+            });
+            // Word and character counter
+            const textarea = document.getElementById('entry-content');
+            const wordCount = document.getElementById('word-count');
+            const charCount = document.getElementById('char-count');
+            textarea.addEventListener('input', function() {
+                const text = this.value.trim();
+                const words = text === '' ? 0 : text.split(/\s+/).length;
+                wordCount.textContent = words;
+                charCount.textContent = this.value.length;
+            });
+            // Save entry
+            const saveBtn = document.getElementById('save-entry');
+            const titleInput = document.getElementById('entry-title');
+            saveBtn.addEventListener('click', function() {
+                const date = document.getElementById('entry-date').value;
+                const title = titleInput.value.trim() || 'Sin título';
+                const content = textarea.value.trim();
+                if (!content) { alert('Escribe algo antes de guardar.'); return; }
+                // Formatear fecha legible
+                const dateObj = new Date(date);
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                const formattedDate = dateObj.toLocaleDateString('es-ES', options);
+                // Crear o actualizar entrada
+                const entry = {
+                    id: editandoId || (Date.now() + '-' + Math.random().toString(36).slice(2)),
+                    date: formattedDate,
+                    mood: window.selectedMood,
+                    title: title,
+                    content: content
+                };
+                guardarEntrada(entry, editandoId);
+                renderizarEntradas();
+                // Limpiar formulario
+                titleInput.value = '';
+                textarea.value = '';
+                wordCount.textContent = '0';
+                charCount.textContent = '0';
+                moodOptions.forEach(opt => {
+                    opt.classList.remove('bg-verdigris/30', 'border-verdigris', 'ring-2', 'ring-verdigris');
+                });
+                window.selectedMood = null;
+                editandoId = null;
+                // Animación de éxito
+                saveBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Guardado!';
+                saveBtn.classList.remove('bg-rose/80');
+                saveBtn.classList.add('bg-verdigris');
+                setTimeout(() => {
+                    saveBtn.innerHTML = '<i class="fas fa-seedling mr-2"></i> Guardar';
+                    saveBtn.classList.remove('bg-verdigris');
+                    saveBtn.classList.add('bg-rose/80');
+                }, 1500);
+            });
+            // Renderizar al cargar
+            renderizarEntradas();
+        });
+        // Impedir que el usuario borre accidentalmente el localStorage
+        window.addEventListener("beforeunload", function(e) {
+            // No se borra nunca por código, pero esto ayuda por si el usuario refresca o navega
+            // No ponemos mensaje custom porque algunos navegadores no lo muestran.
+        });
+    </script>
+</body>
+</html>

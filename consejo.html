@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kawaii Consejos - Sabiduría Anime</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+P+One&family=Nunito:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #ffebee;
+            background-image: url('https://i.pinimg.com/originals/9f/d4/b4/9fd4b48e68eb6a3a5c3bc3d2d23c0cd4.png');
+            background-size: 300px;
+            background-attachment: fixed;
+            color: #5a3d2b;
+        }
+        .title-font {
+            font-family: 'Mochiy Pop P One', sans-serif;
+        }
+        .sakura {
+            position: fixed;
+            top: -10px;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .advice-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 18px;
+            box-shadow: 0 10px 24px rgba(255, 182, 193, 0.15), 0 1.5px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(.23,1.09,.41,.96);
+            border: 1.5px dashed #ffb6c1;
+        }
+        .advice-card:hover {
+            transform: translateY(-8px) scale(1.02) rotate(1.5deg);
+            box-shadow: 0 18px 32px rgba(255, 105, 180, 0.25), 0 2px 12px rgba(0,0,0,0.08);
+        }
+        @keyframes float {
+            0% { transform: translateY(0px);}
+            50% { transform: translateY(-10px);}
+            100% { transform: translateY(0px);}
+        }
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+        .neon-text {
+            text-shadow: 0 0 8px #ff69b4, 0 0 12px #ff69b4, 0 0 16px #ff69b4;
+        }
+        .modal {
+            transition: all 0.3s ease;
+        }
+        .chibi-character {
+            transition: transform 0.3s cubic-bezier(.22,1.28,.62,.99);
+            cursor: pointer;
+        }
+        .chibi-character.selected {
+            border: 3px solid #ff69b4 !important;
+            box-shadow: 0 0 0 6px #ffd1e7b8;
+            background: #fff0f6b8;
+        }
+        .chibi-character:hover {
+            transform: scale(1.1) rotate(4deg);
+        }
+        .heart-btn {
+            transition: color 0.2s;
+        }
+        .heart-btn.favorited {
+            color: #ff69b4 !important;
+            animation: heart-pop 0.5s;
+        }
+        @keyframes heart-pop {
+            0% { transform: scale(1);}
+            50% { transform: scale(1.4);}
+            100% { transform: scale(1);}
+        }
+        .edit-btn, .delete-btn, .save-btn, .cancel-btn {
+            font-size: 0.95rem;
+        }
+        .edit-input {
+            width: 100%;
+            padding: 0.4em 0.6em;
+            border-radius: 8px;
+            border: 1.5px solid #ffb6c1;
+            margin-bottom: 0.6em;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Sakura flowers falling -->
+    <div id="sakura-container"></div>
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-8 animate__animated animate__fadeInDown">
+            <div class="flex justify-center items-center gap-2 md:gap-6">
+                <img src="gato.png" alt="Mascota anime" class="w-20 h-20 float mr-2 md:mr-4">
+                <div>
+                    <h1 class="title-font text-4xl md:text-5xl text-pink-600 mb-2 neon-text drop-shadow">Consejos</h1>
+                    <p class="text-lg text-gray-700">Sabiduría dulce inspirada en el anime ♡</p>
+                </div>
+                <img src="gato.png" alt="Mascota anime" class="w-20 h-20 float ml-2 md:ml-4">
+            </div>
+        </header>
+        <style>
+            .fab-btn {
+                position: fixed;
+                bottom: 30px;
+                left: 30px;
+                width: 60px;
+                height: 60px;
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 24px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                transition: all 0.3s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .fab-btn:hover {
+                background-color: #c0392b;
+                transform: scale(1.1);
+            }
+        </style>
+        
+        <button class="fab-btn" onclick="window.history.back()">←</button>
+        <!-- Main content -->
+        <main>
+            <!-- Advice section -->
+            <section class="mb-10 animate__animated animate__fadeIn">
+                <div class="advice-card p-6 mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-pink-200 opacity-25 rounded-full transform translate-x-8 -translate-y-8"></div>
+                    <div class="absolute bottom-0 left-0 w-20 h-20 bg-blue-200 opacity-25 rounded-full transform -translate-x-8 translate-y-8"></div>
+                    <div class="relative z-10">
+                        <h2 class="title-font text-2xl text-pink-600 mb-4 text-center">Tu consejo del día</h2>
+                        <div id="advice-display" class="text-center text-lg mb-6 min-h-24 flex items-center justify-center">
+                            <p>Presiona el botón para recibir un consejo kawaii!</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <button id="get-advice" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-pink-600 flex items-center mx-auto mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                                </svg>
+                                Obtener Consejo
+                            </button>
+                            <button id="heart-btn" class="heart-btn text-gray-400 hover:text-pink-500 text-2xl transition mb-2 hidden" title="Añadir a favoritos">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Character selector -->
+            <section class="mb-10 animate__animated animate__fadeIn">
+                <h2 class="title-font text-2xl text-center text-pink-600 mb-4">Elige a tu sensei consejero</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="chibi-character text-center border-2 border-pink-300 rounded-xl py-2 px-1 selected" data-character="cat-girl">
+                        <img src="neko-chan.png" alt="Cat Girl" class="w-20 h-20 mx-auto mb-2 rounded-full border-4 border-pink-300 hover:border-pink-500">
+                        <p class="text-sm">Neko-chan</p>
+                    </div>
+                    <div class="chibi-character text-center border-2 border-blue-300 rounded-xl py-2 px-1" data-character="samurai">
+                        <img src="samurai-kun.png" alt="Samurai" class="w-20 h-20 mx-auto mb-2 rounded-full border-4 border-blue-300 hover:border-blue-500">
+                        <p class="text-sm">Samurai-kun</p>
+                    </div>
+                    <div class="chibi-character text-center border-2 border-purple-300 rounded-xl py-2 px-1" data-character="magical-girl">
+                        <img src="Mahou Shoujo.png" alt="Magical Girl" class="w-20 h-20 mx-auto mb-2 rounded-full border-4 border-purple-300 hover:border-purple-500">
+                        <p class="text-sm">Mahou Shoujo</p>
+                    </div>
+                    <div class="chibi-character text-center border-2 border-green-300 rounded-xl py-2 px-1" data-character="ninja">
+                        <img src="Ninja-kun.png" alt="Ninja" class="w-20 h-20 mx-auto mb-2 rounded-full border-4 border-green-300 hover:border-green-500">
+                        <p class="text-sm">Ninja-kun</p>
+                    </div>
+                </div>
+            </section>
+            <!-- Favorite advices -->
+            <section class="animate__animated animate__fadeIn">
+                <h2 class="title-font text-2xl text-center text-pink-600 mb-4">Mis consejos favoritos ♡</h2>
+                <div id="favorites-container" class="grid gap-3"></div>
+                <div class="flex justify-center mt-6">
+                    <button id="add-custom-fav" class="bg-purple-400 hover:bg-purple-500 text-white font-bold py-2 px-6 rounded-full shadow-lg transform hover:scale-105 transition-all duration-300 border-2 border-purple-500 flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Agregar consejo personalizado
+                    </button>
+                </div>
+            </section>
+        </main>
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-600 text-sm animate__animated animate__fadeIn">
+            <p>Diseñado con amor y arroz japonés ♡</p>
+            <p class="mt-1">© 2025 Consejos - Todos los derechos reservados</p>
+        </footer>
+    </div>
+    <!-- Modal consejo -->
+    <div id="advice-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden modal">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 relative advice-card">
+            <button id="close-modal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <img src="20250609_2154_Samurai Emoji Estilo_simple_compose_01jxbrpjgvfmxam10w5890hzva.png" alt="Character" class="w-16 h-16 mx-auto mb-4" id="modal-character">
+            <h3 class="title-font text-xl text-center text-pink-600 mb-2" id="modal-title">Consejo Especial</h3>
+            <p class="text-center mb-4" id="modal-content">Aquí va el contenido del consejo.</p>
+            <div class="flex justify-center space-x-4">
+                <button id="save-favorite-modal" class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-full flex items-center">
+                    <i class="fas fa-heart mr-2"></i>Guardar
+                </button>
+                <button id="share-button" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-full flex items-center">
+                    <i class="fas fa-share-alt mr-2"></i>Compartir
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal agregar/editar favorito -->
+    <div id="edit-fav-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden modal">
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 relative advice-card">
+            <button id="close-edit-fav-modal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 class="title-font text-xl text-center text-pink-600 mb-4" id="edit-modal-title">Agregar/Editar Consejo</h3>
+            <textarea id="edit-fav-input" class="edit-input mb-4 resize-none" rows="4" maxlength="300" placeholder="Escribe tu consejo..."></textarea>
+            <div class="flex justify-center gap-4">
+                <button id="save-edit-fav" class="save-btn bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-full flex items-center">
+                    <i class="fas fa-save mr-2"></i>Guardar
+                </button>
+                <button id="cancel-edit-fav" class="cancel-btn bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-full flex items-center">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Array de consejos kawaii con temática japonesa/anime
+        const adviceList = [
+            "Un día sin sonreír es un día perdido. Como dice Luffy: 'Si no arriesgas, no puedes crear un futuro'.",
+            "Incluso en tus días más oscuros, recuerda que eres el protagonista de tu propia historia. ¡Ganbatte (fuerza)!",
+            "El té verde y unos minutos de tranquilidad pueden ser la mejor medicina para el alma. Practica un poco de ichi-go ichi-e (vivir el momento).",
+            "Tal como Naruto nunca se rindió, tú tampoco deberías hacerlo. ¡Cree en el tú que cree en ti mismo!",
+            "Llena tu vida de pequeñas alegrías como ramen caliente en un día frío o ver el florecer de los cerezos.",
+            "Como en Kimetsu no Yaiba: la bondad es una fuerza poderosa. Sé amable aunque el mundo no siempre lo sea contigo.",
+            "A veces hay que ser tan valiente como un saiyajin y tan sabio como Maestro Roshi. Encuentra tu balance.",
+            "Cada fracaso es como un episodio de relleno - necesario para el desarrollo del personaje principal (¡tú!).",
+            "Igual que los pokémon, todos tenemos diferentes habilidades. ¡Encuentra tu tipo elemental y domínalo!",
+            "Haz como en Studio Ghibli: encuentra la magia en las cosas simples - un buen libro, un atardecer, un dulce dorayaki."
+        ];
+
+        // Temas de personajes
+        const characterThemes = {
+    'cat-girl': {
+        name: 'Neko-chan',
+        image: 'neko-chan.png',  // Nombre exacto del archivo
+        alt: 'Chica gato anime'
+    },
+    'samurai': {
+        name: 'Samurai-kun',
+        image: 'samurai-kun.png', // Nombre exacto del archivo
+        alt: 'Guerrero samurai'
+    },
+    'magical-girl': {
+        name: 'Mahou Shoujo',
+        image: 'mahou shoujo.png',
+        alt: 'Chica mágica'
+    },
+    'ninja': {
+        name: 'Ninja-kun',
+        image: 'ninja-kun.png',
+        alt: 'Ninja sigiloso'
+    }
+};
+
+        let currentCharacter = characterThemes['cat-girl'];
+        let favorites = [];
+        let editFavIndex = null;
+
+        function loadFavoritesFromStorage() {
+            favorites = JSON.parse(localStorage.getItem('favoriteAdvices') || "[]");
+        }
+        function saveFavoritesToStorage() {
+            localStorage.setItem('favoriteAdvices', JSON.stringify(favorites));
+        }
+        function loadFavorites() {
+            loadFavoritesFromStorage();
+            const container = document.getElementById('favorites-container');
+            if (favorites.length === 0) {
+                container.innerHTML = `
+                    <div class="advice-card p-4">
+                        <p class="text-center">Aún no tienes favoritos. ¡Guarda los consejos que más te gusten!</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '';
+                favorites.forEach((fav, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'advice-card p-4 hover:bg-pink-50 flex flex-col relative group';
+                    card.innerHTML = `
+                        <p class="text-center flex-1 px-2 mb-2" style="word-break: break-word;" id="fav-text-${index}">${fav}</p>
+                        <div class="absolute top-2 right-2 flex gap-2">
+                            <button class="edit-btn bg-yellow-200 hover:bg-yellow-300 text-yellow-900 py-1 px-3 rounded-full" title="Editar" data-index="${index}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn bg-rose-200 hover:bg-rose-300 text-rose-700 py-1 px-3 rounded-full" title="Eliminar" data-index="${index}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    // Editar favorito
+                    card.querySelector('.edit-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openEditFavModal(index, fav);
+                    });
+                    // Eliminar favorito
+                    card.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm('¿Seguro que quieres eliminar este consejo favorito?')) {
+                            favorites.splice(index, 1);
+                            saveFavoritesToStorage();
+                            loadFavorites();
+                        }
+                    });
+                    // Mostrar modal consejo al hacer click en el texto
+                    card.querySelector(`#fav-text-${index}`).addEventListener('click', () => {
+                        showAdviceModal(fav);
+                    });
+                    container.appendChild(card);
+                });
+            }
+        }
+        // Sakura
+        function createSakura() {
+            const container = document.getElementById('sakura-container');
+            const colors = ['#ffb6c1', '#ffc0cb', '#ff69b4', '#db7093', '#ffc3a0'];
+            for (let i = 0; i < 20; i++) {
+                const sakura = document.createElement('div');
+                sakura.className = 'sakura';
+                const left = Math.random() * 100;
+                const size = Math.random() * 15 + 5;
+                const duration = Math.random() * 10 + 5;
+                const delay = Math.random() * 5;
+                const opacity = Math.random() * 0.5 + 0.5;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                sakura.style.left = `${left}vw`;
+                sakura.style.width = `${size}px`;
+                sakura.style.height = `${size}px`;
+                sakura.style.animationDuration = `${duration}s`;
+                sakura.style.animationDelay = `${delay}s`;
+                sakura.style.opacity = opacity;
+                sakura.style.color = color;
+                sakura.innerHTML = '🌸';
+                animateSakura(sakura, duration * 1000);
+                container.appendChild(sakura);
+            }
+        }
+        function animateSakura(element, duration) {
+            const start = Date.now();
+            const initialTop = -20;
+            const endTop = window.innerHeight + 20;
+            function frame() {
+                const timePassed = Date.now() - start;
+                const progress = timePassed / duration;
+                if (progress > 1) {
+                    element.style.top = `${initialTop}px`;
+                    animateSakura(element, duration);
+                } else {
+                    const currentTop = initialTop + (endTop - initialTop) * progress;
+                    const currentLeft = 50 + Math.sin(progress * Math.PI * 4) * 30;
+                    element.style.top = `${currentTop}px`;
+                    element.style.left = `${currentLeft}%`;
+                    element.style.transform = `rotate(${progress * 360}deg)`;
+                    requestAnimationFrame(frame);
+                }
+            }
+            requestAnimationFrame(frame);
+        }
+        // Personaje sensei
+        function seleccionarPersonaje(char) {
+            currentCharacter = characterThemes[char];
+            document.querySelectorAll('.chibi-character').forEach(div => {
+                div.classList.remove('selected');
+            });
+            document.querySelector(`.chibi-character[data-character="${char}"]`).classList.add('selected');
+        }
+        // Consejo random
+        function getRandomAdvice() {
+            const button = document.getElementById('get-advice');
+            button.classList.add('animate__animated', 'animate__pulse');
+            setTimeout(() => {
+                button.classList.remove('animate__animated', 'animate__pulse');
+            }, 1000);
+            // Carga
+            const adviceDisplay = document.getElementById('advice-display');
+            adviceDisplay.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <svg class="animate-spin h-8 w-8 text-pink-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p>Buscando sabiduría kawaii...</p>
+                </div>
+            `;
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * adviceList.length);
+                const advice = adviceList[randomIndex];
+                adviceDisplay.innerHTML = `
+                    <span class="animate__animated animate__fadeInDown">${advice}</span>
+                `;
+                // Mostrar botón corazón si no es favorito
+                const heartBtn = document.getElementById('heart-btn');
+                heartBtn.classList.remove('favorited');
+                heartBtn.classList.remove('hidden');
+                heartBtn.setAttribute('title', 'Añadir a favoritos');
+                if (favorites.includes(advice)) {
+                    heartBtn.classList.add('favorited');
+                    heartBtn.setAttribute('title', 'Ya es favorito');
+                }
+                heartBtn.onclick = () => {
+                    if (!favorites.includes(advice)) {
+                        favorites.push(advice);
+                        saveFavoritesToStorage();
+                        loadFavorites();
+                        heartBtn.classList.add('favorited');
+                        heartBtn.setAttribute('title', 'Ya es favorito');
+                    }
+                };
+                // Modal al hacer click en el consejo
+                adviceDisplay.onclick = () => showAdviceModal(advice);
+            }, 800);
+        }
+        // Modal consejo
+        function showAdviceModal(advice) {
+            const modal = document.getElementById('advice-modal');
+            const modalContent = document.getElementById('modal-content');
+            const modalTitle = document.getElementById('modal-title');
+            const modalCharacter = document.getElementById('modal-character');
+            const saveFavBtn = document.getElementById('save-favorite-modal');
+            modalContent.textContent = advice;
+            modalTitle.textContent = `Consejo de ${currentCharacter.name}`;
+            modalCharacter.src = currentCharacter.image;
+            modal.classList.remove('hidden');
+            // Botón favorito modal
+            saveFavBtn.innerHTML = `<i class="fas fa-heart mr-2"></i>Guardar`;
+            if (favorites.includes(advice)) {
+                saveFavBtn.disabled = true;
+                saveFavBtn.classList.add('bg-gray-400');
+                saveFavBtn.classList.remove('bg-pink-500');
+                saveFavBtn.innerHTML = `<i class="fas fa-heart mr-2"></i>Favorito`;
+            } else {
+                saveFavBtn.disabled = false;
+                saveFavBtn.classList.remove('bg-gray-400');
+                saveFavBtn.classList.add('bg-pink-500');
+                saveFavBtn.onclick = function() {
+                    favorites.push(advice);
+                    saveFavoritesToStorage();
+                    loadFavorites();
+                    saveFavBtn.disabled = true;
+                    saveFavBtn.classList.add('bg-gray-400');
+                    saveFavBtn.classList.remove('bg-pink-500');
+                    saveFavBtn.innerHTML = `<i class="fas fa-heart mr-2"></i>Favorito`;
+                };
+            }
+        }
+        function closeModal() {
+            document.getElementById('advice-modal').classList.add('hidden');
+        }
+        function shareAdvice() {
+            const advice = document.getElementById('modal-content').textContent;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(advice).then(() => {
+                    alert("¡Consejo copiado para compartir! ♡");
+                });
+            } else {
+                alert("Tu navegador no permite copiar automáticamente. Selecciona el consejo y cópialo manualmente.");
+            }
+        }
+        // Modal agregar/editar favorito
+        function openEditFavModal(index = null, text = "") {
+            editFavIndex = index;
+            document.getElementById('edit-fav-input').value = text;
+            document.getElementById('edit-modal-title').innerText = index !== null ? 'Editar Consejo' : 'Agregar Consejo';
+            document.getElementById('edit-fav-modal').classList.remove('hidden');
+        }
+        function closeEditFavModal() {
+            document.getElementById('edit-fav-modal').classList.add('hidden');
+            editFavIndex = null;
+        }
+        // Guardar favorito editado/agregado
+        function saveEditFav() {
+            const input = document.getElementById('edit-fav-input');
+            const value = input.value.trim();
+            if (!value) {
+                alert("¡El consejo no puede estar vacío!");
+                input.focus();
+                return;
+            }
+            if (editFavIndex !== null) {
+                favorites[editFavIndex] = value;
+            } else {
+                favorites.push(value);
+            }
+            saveFavoritesToStorage();
+            loadFavorites();
+            closeEditFavModal();
+        }
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            createSakura();
+            loadFavorites();
+            document.getElementById('get-advice').addEventListener('click', getRandomAdvice);
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('share-button').addEventListener('click', shareAdvice);
+            document.getElementById('save-favorite-modal').addEventListener('click', () => {}); // asignado en showAdviceModal
+            // Personajes
+            document.querySelectorAll('.chibi-character').forEach(item => {
+                item.addEventListener('click', function() {
+                    seleccionarPersonaje(this.getAttribute('data-character'));
+                    this.classList.add('animate__animated', 'animate__bounce');
+                    setTimeout(() => {
+                        this.classList.remove('animate__animated', 'animate__bounce');
+                    }, 700);
+                });
+            });
+            // Modal agregar favorito
+            document.getElementById('add-custom-fav').addEventListener('click', function() {
+                openEditFavModal();
+            });
+            document.getElementById('close-edit-fav-modal').addEventListener('click', closeEditFavModal);
+            document.getElementById('cancel-edit-fav').addEventListener('click', closeEditFavModal);
+            document.getElementById('save-edit-fav').addEventListener('click', saveEditFav);
+        });
+    </script>
+    <!-- FontAwesome for heart/share icons -->
+    <script src="https://kit.fontawesome.com/8f5a7bfe8d.js" crossorigin="anonymous"></script>
+</body>
+</html>

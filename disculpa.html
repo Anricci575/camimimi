@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Postales Vintage</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Playfair Display', serif;
+            background-color: #f5f1e6;
+            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+        }
+        
+        .postcard {
+            background: linear-gradient(to bottom right, #fff9e6, #fff4d9);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+            position: relative;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            transform: perspective(1000px);
+        }
+        
+        .postcard:hover {
+            transform: perspective(1000px) rotateY(5deg) rotateX(2deg) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .postcard::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 40px;
+            width: 1px;
+            height: 100%;
+            background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 20px);
+        }
+        
+        .postcard-title {
+            font-family: 'Dancing Script', cursive;
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+        }
+        
+        .stamp {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 60px;
+            height: 70px;
+            background: #f8f8f8;
+            border: 1px dashed #aaa;
+            transform: rotate(5deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #555;
+        }
+        
+        .stamp::before {
+            content: 'POSTAGE';
+            position: absolute;
+            top: 5px;
+            font-size: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .stamp::after {
+            content: '$1.20';
+            position: absolute;
+            bottom: 5px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .wave-border {
+            position: relative;
+        }
+        
+        .wave-border::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23f5f1e6"></path></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        
+        /* Vintage buttons */
+        .vintage-btn {
+            background: linear-gradient(to bottom, #e6d5b8, #d4c4a3);
+            border: 1px solid #9c8c6b;
+            color: #4a3e2a;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        
+        .vintage-btn:hover {
+            background: linear-gradient(to bottom, #d4c4a3, #c2b392);
+            transform: translateY(-1px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 3px 5px rgba(0,0,0,0.15);
+        }
+        
+        .vintage-btn:active {
+            transform: translateY(0);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .login-card {
+            background: linear-gradient(to bottom right, #f8f3e6, #f0e6cc);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d9c7a7;
+        }
+        
+        /* Vintage input fields */
+        .vintage-input {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid #c4b595;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .vintage-input:focus {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: #9c8c6b;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 0 8px rgba(156, 140, 107, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-12">
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="login-card rounded-lg p-8 w-full max-w-md fade-in">
+            <h2 class="text-2xl font-bold mb-6 text-center text-amber-900">Admin Login</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-amber-800 mb-1">Usuario</label>
+                    <input type="text" id="username" class="vintage-input w-full px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-amber-800 mb-1">Contraseña</label>
+                    <input type="password" id="password" class="vintage-input w-full px-3 py-2 rounded border focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+                <button onclick="login()" class="vintage-btn w-full py-2 px-4 rounded font-medium mt-4">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Acceder
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4">
+        <!-- Header -->
+        <header class="text-center mb-12 wave-border pb-10">
+            <h1 class="postcard-title text-4xl md:text-6xl font-bold text-amber-900 mb-4">Cartas de Ayer</h1>
+            <p class="text-lg text-amber-800 max-w-2xl mx-auto">Una colección de postales vintage que capturan momentos atemporales</p>
+            
+            <div id="adminControls" class="hidden mt-6 flex justify-center space-x-4">
+                <button onclick="showAddForm()" class="vintage-btn py-2 px-4 rounded flex items-center">
+                    <i class="fas fa-plus mr-2"></i> Agregar Postal
+                </button>
+                <button onclick="toggleEditMode()" id="editToggle" class="vintage-btn py-2 px-4 rounded flex items-center">
+                    <i class="fas fa-edit mr-2"></i> Modo Edición
+                </button>
+            </div>
+        </header>
+
+        <!-- Add Postcard Form (Hidden by default) -->
+        <div id="addPostcardForm" class="hidden max-w-3xl mx-auto mb-12 fade-in">
+            <div class="postcard p-6">
+                <h3 class="postcard-title text-2xl font-bold mb-4 text-amber-900">Nueva Postal</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-amber-800 mb-1">Título</label>
+                        <input id="newTitle" type="text" class="vintage-input w-full px-3 py-2 rounded border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-amber-800 mb-1">Contenido</label>
+                        <textarea id="newContent" rows="4" class="vintage-input w-full px-3 py-2 rounded border"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-amber-800 mb-1">Imagen (URL)</label>
+                        <input id="newImage" type="text" class="vintage-input w-full px-3 py-2 rounded border">
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-4">
+                        <button onclick="hideAddForm()" class="vintage-btn py-2 px-4 rounded">
+                            Cancelar
+                        </button>
+                        <button onclick="addPostcard()" class="vintage-btn py-2 px-4 rounded bg-amber-700 text-white">
+                            <i class="fas fa-save mr-2"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Postcards Grid -->
+        <div id="postcardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Postcards will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Edit Modal (Hidden by default) -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 hidden">
+        <div class="postcard p-6 max-w-2xl w-full fade-in">
+            <h3 id="editModalTitle" class="postcard-title text-2xl font-bold mb-4 text-amber-900">Editar Postal</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="editId">
+                <div>
+                    <label class="block text-sm font-medium text-amber-800 mb-1">Título</label>
+                    <input id="editTitle" type="text" class="vintage-input w-full px-3 py-2 rounded border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-amber-800 mb-1">Contenido</label>
+                    <textarea id="editContent" rows="4" class="vintage-input w-full px-3 py-2 rounded border"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-amber-800 mb-1">Imagen (URL)</label>
+                    <input id="editImage" type="text" class="vintage-input w-full px-3 py-2 rounded border">
+                </div>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button onclick="hideEditModal()" class="vintage-btn py-2 px-4 rounded">
+                        Cancelar
+                    </button>
+                    <button onclick="saveEditedPostcard()" class="vintage-btn py-2 px-4 rounded bg-amber-700 text-white">
+                        <i class="fas fa-save mr-2"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample postcards data
+        let postcards = [
+            {
+                id: 1,
+                title: "te amo",
+                content: "<:",
+                image: "111.png"
+            },
+            {
+                
+    id: 2,
+    title: "Mi amor",
+    content: "\n\nSolo quería escribirte unas palabras para decirte algo que siento profundamente: me quiero quedar contigo.\n\nCada día a tu lado es un regalo, y no hay nada que desee más que seguir construyendo nuestra vida juntos. Eres mi hogar, mi alegría y mi paz.\n\nCon todo mi cariño,\n\nAndres ricci",
+},
+            
+            {
+  id: 3,
+  title: "para ti",
+  "content": "Mi Cami,\n\nTe escribo estas palabras con el corazón en la mano, lleno de un arrepentimiento que me pesa más de lo que puedo expresar. Sé que te he lastimado y que mi comportamiento ha sido la causa de tu dolor, y por eso, antes que nada, quiero pedirte perdón.\n\nPerdón por mi cobardía. Hoy lo veo con una claridad que me avergüenza. Fui un cobarde al no saber enfrentar todo el tema de mis padres como debía. Me escondí en el miedo y en la comodidad de no arriesgar, y en ese proceso, te fallé a ti y me fallé a mí mismo.\n\nNo hay excusas para cómo actué. Entiendo perfectamente por qué te sientes decepcionada. Mis acciones no estuvieron a la altura de lo que tú mereces y de lo que yo debería haber sido. Me arrepiento profundamente de cada momento en que mi falta de valentía te hizo dudar de mis sentimientos o de mi compromiso.\n\nLa verdad, y lo que más me duele, es que todo este tiempo he querido estar contigo. Eres la persona con la que imagino mi futuro, la que me hace querer ser mejor. Mi miedo me paralizó, pero mi amor por ti nunca ha disminuido. Al contrario, en esta distancia y con esta claridad que me da el arrepentimiento, me doy cuenta de que eres tú con quien quiero construir algo real y duradero.\n\nNo te pido que olvides lo que pasó de la noche a la mañana, pero sí te pido una oportunidad para demostrarte que he aprendido de mi error. Quiero ser el hombre valiente que tú mereces, alguien que no huya de las dificultades y que sepa estar a tu lado, sin reservas.\n\nQuiero estar contigo, luchar por ti y por nosotros.\n\nCon todo mi cariño y la esperanza de tu perdón,"
+}
+
+        ];
+
+        let isAdmin = false;
+        let editMode = false;
+        let nextId = 4;
+
+        // Check if user is logged in
+        function checkAuth() {
+            const storedAuth = localStorage.getItem('postcardsAuth');
+            if (storedAuth === 'true') {
+                isAdmin = true;
+                document.getElementById('adminControls').classList.remove('hidden');
+                document.getElementById('loginModal').classList.add('hidden');
+            }
+        }
+
+        // Login function
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username === 'andru' && password === '110106') {
+                isAdmin = true;
+                localStorage.setItem('postcardsAuth', 'true');
+                document.getElementById('adminControls').classList.remove('hidden');
+                document.getElementById('loginModal').classList.add('hidden');
+                renderPostcards();
+            } else {
+                alert('Credenciales incorrectas');
+            }
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            editMode = !editMode;
+            const editToggle = document.getElementById('editToggle');
+            
+            if (editMode) {
+                editToggle.innerHTML = '<i class="fas fa-times mr-2"></i> Salir de Edición';
+                editToggle.classList.add('bg-red-600', 'text-white');
+                editToggle.classList.remove('vintage-btn');
+            } else {
+                editToggle.innerHTML = '<i class="fas fa-edit mr-2"></i> Modo Edición';
+                editToggle.classList.remove('bg-red-600', 'text-white');
+                editToggle.classList.add('vintage-btn');
+            }
+            
+            renderPostcards();
+        }
+
+        // Show add postcard form
+        function showAddForm() {
+            document.getElementById('addPostcardForm').classList.remove('hidden');
+        }
+
+        // Hide add postcard form
+        function hideAddForm() {
+            document.getElementById('addPostcardForm').classList.add('hidden');
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newContent').value = '';
+            document.getElementById('newImage').value = '';
+        }
+
+        // Add new postcard
+        function addPostcard() {
+            const title = document.getElementById('newTitle').value.trim();
+            const content = document.getElementById('newContent').value.trim();
+            const image = document.getElementById('newImage').value.trim();
+            
+            if (!title || !content || !image) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            postcards.push({
+                id: nextId++,
+                title,
+                content,
+                image
+            });
+            
+            hideAddForm();
+            renderPostcards();
+        }
+
+        // Show edit modal
+        function showEditModal(id) {
+            const postcard = postcards.find(p => p.id === id);
+            if (!postcard) return;
+            
+            document.getElementById('editId').value = postcard.id;
+            document.getElementById('editTitle').value = postcard.title;
+            document.getElementById('editContent').value = postcard.content;
+            document.getElementById('editImage').value = postcard.image;
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        // Hide edit modal
+        function hideEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        // Save edited postcard
+        function saveEditedPostcard() {
+            const id = parseInt(document.getElementById('editId').value);
+            const title = document.getElementById('editTitle').value.trim();
+            const content = document.getElementById('editContent').value.trim();
+            const image = document.getElementById('editImage').value.trim();
+            
+            if (!title || !content || !image) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            const index = postcards.findIndex(p => p.id === id);
+            if (index !== -1) {
+                postcards[index] = { id, title, content, image };
+            }
+            
+            hideEditModal();
+            renderPostcards();
+        }
+
+        // Delete postcard
+        function deletePostcard(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar esta postal?')) return;
+            
+            postcards = postcards.filter(p => p.id !== id);
+            renderPostcards();
+        }
+
+        // Render all postcards
+        function renderPostcards() {
+            const grid = document.getElementById('postcardsGrid');
+            grid.innerHTML = '';
+            
+            postcards.forEach(postcard => {
+                const postcardElement = document.createElement('div');
+                postcardElement.className = 'postcard p-6 fade-in relative overflow-hidden h-full flex flex-col';
+                postcardElement.innerHTML = `
+                    <div class="stamp">
+                        <i class="fas fa-stamp text-red-400 text-3xl"></i>
+                    </div>
+                    <h3 class="postcard-title text-2xl font-bold mb-3 text-amber-900">${postcard.title}</h3>
+                    ${postcard.image ? `<img src="${postcard.image}" alt="${postcard.title}" class="w-full h-48 object-cover mb-4 rounded">` : ''}
+                    <p class="text-gray-700 mb-4 flex-grow">${postcard.content}</p>
+                    ${isAdmin && editMode ? `
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="showEditModal(${postcard.id})" class="vintage-btn py-1 px-3 text-sm">
+                            <i class="fas fa-edit mr-1"></i> Editar
+                        </button>
+                        <button onclick="deletePostcard(${postcard.id})" class="vintage-btn py-1 px-3 text-sm bg-red-600 text-white">
+                            <i class="fas fa-trash-alt mr-1"></i> Eliminar
+                        </button>
+                    </div>` : ''}
+                    <div class="text-xs text-amber-800 mt-4 italic text-right">Escrito con tinta el ${new Date().toLocaleDateString()}</div>
+                `;
+                grid.appendChild(postcardElement);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            renderPostcards();
+            
+            if (!isAdmin) {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

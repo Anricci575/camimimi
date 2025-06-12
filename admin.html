@@ -200,6 +200,7 @@
                 Añade tus cartas ♡ ~(˘▾˘~)
             </p>
         </header>
+        <body class="bg-pink-50 min-h-screen font-[Comic-Sans-MS] print:bg-white"></body>
         <div class="bg-white rounded-3xl p-6 mb-10 text-center shadow-lg border-2 border-pink-200 relative overflow-hidden no-print">
             <div class="absolute -bottom-4 -left-4 cloud text-blue-200 text-5xl animate-float">
                 <i class="fas fa-cloud" aria-hidden="true"></i>
@@ -283,6 +284,7 @@
                 cardContent: document.getElementById('cardContent'),
                 colorBtns: document.querySelectorAll('.color-btn')
             };
+            
             const state = {
                 selectedColor: 'bg-pink-100',
                 kawaiiIcons: ['fa-heart', 'fa-star', 'fa-cloud', 'fa-cat', 'fa-dog', 'fa-birthday-cake', 'fa-ice-cream', 'fa-cookie'],
@@ -295,82 +297,102 @@
                 konamiCode: ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'],
                 konamiIndex: 0
             };
+
             initApp();
+
             function initApp() {
                 loadCardsFromStorage();
                 setupEventListeners();
-                DOM.colorBtns[0].classList.add('border-pink-500');
+                highlightColorBtn(state.selectedColor);
             }
+
             function setupEventListeners() {
-                DOM.colorBtns.forEach(btn => btn.addEventListener('click', handleColorSelection));
+                DOM.colorBtns.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        state.selectedColor = e.currentTarget.dataset.color;
+                        highlightColorBtn(state.selectedColor);
+                    });
+                });
+                
                 DOM.addCardBtn.addEventListener('click', addNewCard);
                 DOM.printBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     window.print();
                 });
+                
                 DOM.cardContent.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         addNewCard();
                     }
                 });
+                
                 document.addEventListener('keydown', handleKonamiCode);
             }
-            function handleColorSelection(e) {
+
+            function highlightColorBtn(selectedColor) {
                 DOM.colorBtns.forEach(btn => {
-                    btn.classList.remove('border-pink-500', 'border-blue-500', 'border-purple-500', 'border-green-500', 'border-yellow-500');
+                    btn.classList.remove(
+                        'border-pink-500', 'border-blue-500', 'border-purple-500', 
+                        'border-green-500', 'border-yellow-500', 'ring-2', 'ring-offset-2',
+                        'ring-pink-300', 'ring-blue-300', 'ring-purple-300', 
+                        'ring-green-300', 'ring-yellow-300'
+                    );
+                    
+                    if(btn.dataset.color === selectedColor) {
+                        const borderClass = getBorderClass(selectedColor);
+                        btn.classList.add('ring-2', 'ring-offset-2');
+                        borderClass.split(' ').forEach(clase => btn.classList.add(clase));
+                    }
                 });
-                state.selectedColor = e.currentTarget.dataset.color;
-                const colorMap = {
-                    'bg-pink-100': 'border-pink-500',
-                    'bg-blue-100': 'border-blue-500',
-                    'bg-purple-100': 'border-purple-500',
-                    'bg-green-100': 'border-green-500',
-                    'bg-yellow-100': 'border-yellow-500'
-                };
-                e.currentTarget.classList.add(colorMap[state.selectedColor]);
             }
+
+            function getBorderClass(colorClass) {
+                const colorMap = {
+                    'bg-pink-100': 'border-pink-500 ring-pink-300',
+                    'bg-blue-100': 'border-blue-500 ring-blue-300',
+                    'bg-purple-100': 'border-purple-500 ring-purple-300',
+                    'bg-green-100': 'border-green-500 ring-green-300',
+                    'bg-yellow-100': 'border-yellow-500 ring-yellow-300'
+                };
+                return colorMap[colorClass] || 'border-pink-500 ring-pink-300';
+            }
+
             function addNewCard() {
                 const title = DOM.cardTitle.value.trim();
                 const content = DOM.cardContent.value.trim();
+                
                 if (!title || !content) {
                     showAlert('¡No olvides poner el título y contenido de tu kartita! (｡•́︿•̀｡)');
                     return;
                 }
+                
                 const card = {
                     id: Date.now().toString(),
                     title: title,
                     content: content,
                     color: state.selectedColor
                 };
-                addCardToDOM(card);
+                
+                addCardToDOM(card, true);
                 saveCardToStorage(card);
+                
                 DOM.cardTitle.value = '';
                 DOM.cardContent.value = '';
                 DOM.cardTitle.focus();
+                
                 if (DOM.emptyMessage.style.display !== 'none') {
                     DOM.emptyMessage.style.display = 'none';
                 }
             }
-            function showAlert(message) {
-                const alert = document.createElement('div');
-                alert.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-white p-4 rounded-xl shadow-lg border-2 border-pink-300 z-50 flex items-center animate-bounce';
-                alert.innerHTML = `
-                    <i class="fas fa-exclamation-circle text-pink-500 mr-2"></i>
-                    <span>${message}</span>
-                `;
-                document.body.appendChild(alert);
-                setTimeout(() => {
-                    alert.classList.remove('animate-bounce');
-                    alert.classList.add('fade-out');
-                    setTimeout(() => alert.remove(), 300);
-                }, 3000);
-            }
-            function addCardToDOM(card) {
+
+            function addCardToDOM(card, prepend=false) {
                 const cardElement = document.createElement('div');
                 cardElement.className = `kawaii-card ${card.color} p-6 relative`;
                 cardElement.dataset.id = card.id;
+                
                 const randomIcon = state.kawaiiIcons[Math.floor(Math.random() * state.kawaiiIcons.length)];
+                
                 cardElement.innerHTML = `
                     ${state.decorations.map(dec => `
                         <div class="absolute ${dec.pos} ${dec.color} text-2xl">
@@ -380,8 +402,12 @@
                     <div class="flex justify-between items-start mb-4">
                         <h3 class="text-xl font-bold text-pink-500 truncate card-title">${escapeHTML(card.title)}</h3>
                         <div class="flex gap-2">
-                            <button class="edit-btn no-print" title="Editar kartita" aria-label="Editar kartita"><i class="fas fa-edit"></i></button>
-                            <button class="delete-btn no-print" title="Eliminar kartita" aria-label="Eliminar kartita"><i class="fas fa-trash"></i></button>
+                            <button class="edit-btn no-print" title="Editar kartita" aria-label="Editar kartita">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn no-print" title="Eliminar kartita" aria-label="Eliminar kartita">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                     <p class="text-gray-600 mb-6 whitespace-pre-wrap card-content">${escapeHTML(card.content)}</p>
@@ -392,16 +418,123 @@
                         </div>
                     </div>
                 `;
-                DOM.cardsContainer.prepend(cardElement);
-                // Delete functionality
+                
+                if(prepend) {
+                    DOM.cardsContainer.prepend(cardElement);
+                } else {
+                    DOM.cardsContainer.appendChild(cardElement);
+                }
+                
                 cardElement.querySelector('.delete-btn').addEventListener('click', function() {
                     showDeleteConfirmation(card.id, cardElement);
                 });
-                // Edit functionality
+                
                 cardElement.querySelector('.edit-btn').addEventListener('click', function() {
                     startEditCard(cardElement, card);
                 });
             }
+
+            function saveCardToStorage(card) {
+                let cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
+                cards.push(card);
+                localStorage.setItem('kawaiiCards', JSON.stringify(cards));
+            }
+
+            function loadCardsFromStorage() {
+                const cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
+                if (cards.length > 0) {
+                    DOM.emptyMessage.style.display = 'none';
+                    // Mostrar las más nuevas arriba
+                    for(let i = cards.length - 1; i >= 0; i--) {
+                        addCardToDOM(cards[i], false);
+                    }
+                }
+            }
+
+            function removeCardFromStorage(cardId) {
+                let cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
+                cards = cards.filter(card => card.id !== cardId);
+                localStorage.setItem('kawaiiCards', JSON.stringify(cards));
+            }
+
+            function updateCardInStorage(cardId, newTitle, newContent) {
+                let cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
+                cards = cards.map(card => {
+                    if (card.id === cardId) {
+                        return {
+                            ...card,
+                            title: newTitle,
+                            content: newContent,
+                            color: card.color // Mantenemos el color original
+                        };
+                    }
+                    return card;
+                });
+                localStorage.setItem('kawaiiCards', JSON.stringify(cards));
+            }
+
+            function startEditCard(cardElement, originalCard) {
+                if (cardElement.querySelector('.edit-actions')) return;
+                
+                const titleEl = cardElement.querySelector('.card-title');
+                const contentEl = cardElement.querySelector('.card-content');
+                const oldTitle = originalCard.title;
+                const oldContent = originalCard.content;
+                
+                titleEl.outerHTML = `
+                    <input type="text" class="edit-title text-xl font-bold text-pink-500 truncate bg-white border border-pink-300 rounded w-full p-1 mb-2" 
+                           value="${escapeHTML(oldTitle)}" />
+                `;
+                
+                contentEl.outerHTML = `
+                    <textarea class="edit-content w-full rounded border border-pink-200 p-2 mb-2 bg-white text-gray-600" rows="4">
+                        ${escapeHTML(oldContent)}
+                    </textarea>
+                `;
+                
+                const actionDiv = document.createElement('div');
+                actionDiv.className = "edit-actions";
+                actionDiv.innerHTML = `
+                    <button class="kawaii-btn save-edit px-3 py-1">Guardar</button>
+                    <button class="kawaii-btn cancel-edit px-3 py-1 bg-gray-300 hover:bg-gray-400 text-gray-700">Cancelar</button>
+                `;
+                
+                cardElement.appendChild(actionDiv);
+                
+                actionDiv.querySelector('.save-edit').addEventListener('click', () => {
+                    const newTitle = cardElement.querySelector('.edit-title').value.trim();
+                    const newContent = cardElement.querySelector('.edit-content').value.trim();
+                    
+                    if (!newTitle || !newContent) {
+                        showAlert('¡No puedes dejar la kartita vacía!');
+                        return;
+                    }
+                    
+                    cardElement.querySelector('.edit-title').outerHTML = `
+                        <h3 class="text-xl font-bold text-pink-500 truncate card-title">${escapeHTML(newTitle)}</h3>
+                    `;
+                    
+                    cardElement.querySelector('.edit-content').outerHTML = `
+                        <p class="text-gray-600 mb-6 whitespace-pre-wrap card-content">${escapeHTML(newContent)}</p>
+                    `;
+                    
+                    actionDiv.remove();
+                    updateCardInStorage(originalCard.id, newTitle, newContent);
+                });
+                
+                actionDiv.querySelector('.cancel-edit').addEventListener('click', () => {
+                    cardElement.querySelector('.edit-title').outerHTML = `
+                        <h3 class="text-xl font-bold text-pink-500 truncate card-title">${escapeHTML(oldTitle)}</h3>
+                    `;
+                    
+                    cardElement.querySelector('.edit-content').outerHTML = `
+                        <p class="text-gray-600 mb-6 whitespace-pre-wrap card-content">${escapeHTML(oldContent)}</p>
+                    `;
+                    
+                    actionDiv.remove();
+                });
+            }
+
             function escapeHTML(str) {
                 return str.replace(/&/g, "&amp;")
                          .replace(/</g, "&lt;")
@@ -409,6 +542,7 @@
                          .replace(/"/g, "&quot;")
                          .replace(/'/g, "&#039;");
             }
+
             function showDeleteConfirmation(cardId, cardElement) {
                 const confirmBox = document.createElement('div');
                 confirmBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
@@ -427,82 +561,44 @@
                         </div>
                     </div>
                 `;
+                
                 document.body.appendChild(confirmBox);
+                
                 const cancelBtn = confirmBox.querySelector('.cancel-btn');
                 const confirmBtn = confirmBox.querySelector('.confirm-btn');
+                
                 cancelBtn.addEventListener('click', () => {
                     confirmBox.remove();
                 });
+                
                 confirmBtn.addEventListener('click', () => {
                     cardElement.remove();
                     removeCardFromStorage(cardId);
                     confirmBox.remove();
+                    
                     if (DOM.cardsContainer.children.length === 0) {
                         DOM.emptyMessage.style.display = 'block';
                     }
                 });
             }
-            function startEditCard(cardElement, originalCard) {
-                if (cardElement.querySelector('.edit-actions')) return;
-                const titleEl = cardElement.querySelector('.card-title');
-                const contentEl = cardElement.querySelector('.card-content');
-                const oldTitle = originalCard.title;
-                const oldContent = originalCard.content;
-                titleEl.outerHTML = `<input type="text" class="edit-title text-xl font-bold text-pink-500 truncate bg-white border border-pink-300 rounded w-full p-1 mb-2" value="${escapeHTML(oldTitle)}" />`;
-                contentEl.outerHTML = `<textarea class="edit-content w-full rounded border border-pink-200 p-2 mb-2 bg-white text-gray-600" rows="4">${escapeHTML(oldContent)}</textarea>`;
-                const actionDiv = document.createElement('div');
-                actionDiv.className = "edit-actions";
-                actionDiv.innerHTML = `
-                    <button class="kawaii-btn save-edit px-3 py-1">Guardar</button>
-                    <button class="kawaii-btn cancel-edit px-3 py-1 bg-gray-300 hover:bg-gray-400 text-gray-700">Cancelar</button>
+
+            function showAlert(message) {
+                const alert = document.createElement('div');
+                alert.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-white p-4 rounded-xl shadow-lg border-2 border-pink-300 z-50 flex items-center animate-bounce';
+                alert.innerHTML = `
+                    <i class="fas fa-exclamation-circle text-pink-500 mr-2"></i>
+                    <span>${message}</span>
                 `;
-                cardElement.appendChild(actionDiv);
-                actionDiv.querySelector('.save-edit').addEventListener('click', () => {
-                    const newTitle = cardElement.querySelector('.edit-title').value.trim();
-                    const newContent = cardElement.querySelector('.edit-content').value.trim();
-                    if (!newTitle || !newContent) {
-                        showAlert('¡No puedes dejar la kartita vacía!');
-                        return;
-                    }
-                    cardElement.querySelector('.edit-title').outerHTML = `<h3 class="text-xl font-bold text-pink-500 truncate card-title">${escapeHTML(newTitle)}</h3>`;
-                    cardElement.querySelector('.edit-content').outerHTML = `<p class="text-gray-600 mb-6 whitespace-pre-wrap card-content">${escapeHTML(newContent)}</p>`;
-                    actionDiv.remove();
-                    updateCardInStorage(originalCard.id, newTitle, newContent);
-                });
-                actionDiv.querySelector('.cancel-edit').addEventListener('click', () => {
-                    cardElement.querySelector('.edit-title').outerHTML = `<h3 class="text-xl font-bold text-pink-500 truncate card-title">${escapeHTML(oldTitle)}</h3>`;
-                    cardElement.querySelector('.edit-content').outerHTML = `<p class="text-gray-600 mb-6 whitespace-pre-wrap card-content">${escapeHTML(oldContent)}</p>`;
-                    actionDiv.remove();
-                });
+                
+                document.body.appendChild(alert);
+                
+                setTimeout(() => {
+                    alert.classList.remove('animate-bounce');
+                    alert.classList.add('fade-out');
+                    setTimeout(() => alert.remove(), 300);
+                }, 3000);
             }
-            function saveCardToStorage(card) {
-                let cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
-                cards.push(card);
-                localStorage.setItem('kawaiiCards', JSON.stringify(cards));
-            }
-            function loadCardsFromStorage() {
-                const cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
-                if (cards.length > 0) {
-                    DOM.emptyMessage.style.display = 'none';
-                    cards.reverse().forEach(card => {
-                        addCardToDOM(card);
-                    });
-                }
-            }
-            function removeCardFromStorage(cardId) {
-                let cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
-                cards = cards.filter(card => card.id !== cardId);
-                localStorage.setItem('kawaiiCards', JSON.stringify(cards));
-            }
-            function updateCardInStorage(cardId, newTitle, newContent) {
-                let cards = JSON.parse(localStorage.getItem('kawaiiCards')) || [];
-                cards = cards.map(card =>
-                    card.id === cardId
-                        ? {...card, title: newTitle, content: newContent}
-                        : card
-                );
-                localStorage.setItem('kawaiiCards', JSON.stringify(cards));
-            }
+
             function handleKonamiCode(e) {
                 if (e.key === state.konamiCode[state.konamiIndex]) {
                     state.konamiIndex++;
@@ -514,11 +610,13 @@
                     state.konamiIndex = 0;
                 }
             }
+
             function triggerEasterEgg() {
                 document.body.style.background = 'linear-gradient(135deg, #ffcce6, #ffebf3, #e6f7ff)';
                 for (let i = 0; i < 20; i++) createFloatingHeart();
                 setTimeout(() => { document.body.style.background = ''; }, 3000);
             }
+
             function createFloatingHeart() {
                 const heart = document.createElement('div');
                 heart.innerHTML = '<i class="fas fa-heart text-pink-300" aria-hidden="true"></i>';
